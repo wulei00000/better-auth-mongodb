@@ -88,8 +88,11 @@ src/
 │   ├── actions.ts        # Server actions with auth checks
 │   ├── mongodb.ts        # MongoDB client setup
 │   ├── env.ts            # Environment variable validation
-│   └── types.ts          # TypeScript definitions
+│   ├── types.ts          # TypeScript definitions
+│   └── utils.ts          # Utility functions (cn, etc.)
 └── middleware.ts          # Route protection middleware
+components.json            # shadcn/ui configuration
+.env.example              # Environment variables template
 ```
 
 ## Authentication Flow

@@ -16,7 +16,7 @@ import {
   SidebarProvider,
   SidebarTrigger 
 } from "@/components/ui/sidebar";
-import { Plus, Trash2, Calendar, User } from "lucide-react";
+import { Plus, Trash2, Calendar, User, Edit3, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import type { Todo, CreateTodoInput } from "@/lib/types";
 import { getTodos, createTodoFromData, updateTodo, deleteTodo } from "@/lib/actions";
@@ -29,7 +29,13 @@ interface TodosClientProps {
 export function TodosClient({ initialTodos }: TodosClientProps) {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [newTodo, setNewTodo] = useState<CreateTodoInput>({ title: "", description: "" });
-  const [isPending, startTransition] = useTransition();
+  const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<{ title: string; description: string }>({ title: "", description: "" });
+  const [isCreating, startCreateTransition] = useTransition();
+  const [, startUpdateTransition] = useTransition();
+  const [, startDeleteTransition] = useTransition();
+  const [updatingTodoId, setUpdatingTodoId] = useState<string | null>(null);
+  const [deletingTodoId, setDeletingTodoId] = useState<string | null>(null);
 
   const fetchTodos = async () => {
     try {
@@ -44,7 +50,7 @@ export function TodosClient({ initialTodos }: TodosClientProps) {
     e.preventDefault();
     if (!newTodo.title.trim()) return;
 
-    startTransition(async () => {
+    startCreateTransition(async () => {
       try {
         await createTodoFromData(newTodo);
         setNewTodo({ title: "", description: "" });
@@ -57,25 +63,66 @@ export function TodosClient({ initialTodos }: TodosClientProps) {
   };
 
   const toggleTodo = async (todoId: string, completed: boolean) => {
-    startTransition(async () => {
+    setUpdatingTodoId(todoId);
+    startUpdateTransition(async () => {
       try {
         await updateTodo(todoId, { completed: !completed });
         toast.success(`Todo ${!completed ? "completed" : "uncompleted"}`);
         await fetchTodos();
       } catch {
         toast.error("Error updating todo");
+      } finally {
+        setUpdatingTodoId(null);
       }
     });
   };
 
   const handleDeleteTodo = async (todoId: string) => {
-    startTransition(async () => {
+    setDeletingTodoId(todoId);
+    startDeleteTransition(async () => {
       try {
         await deleteTodo(todoId);
         toast.success("Todo deleted successfully");
         await fetchTodos();
       } catch {
         toast.error("Error deleting todo");
+      } finally {
+        setDeletingTodoId(null);
+      }
+    });
+  };
+
+  const startEditingTodo = (todo: Todo) => {
+    setEditingTodoId(todo._id);
+    setEditForm({ title: todo.title, description: todo.description || "" });
+  };
+
+  const cancelEditingTodo = () => {
+    setEditingTodoId(null);
+    setEditForm({ title: "", description: "" });
+  };
+
+  const saveEditTodo = async (todoId: string) => {
+    if (!editForm.title.trim()) {
+      toast.error("Title cannot be empty");
+      return;
+    }
+
+    setUpdatingTodoId(todoId);
+    startUpdateTransition(async () => {
+      try {
+        await updateTodo(todoId, { 
+          title: editForm.title, 
+          description: editForm.description 
+        });
+        toast.success("Todo updated successfully");
+        await fetchTodos();
+        setEditingTodoId(null);
+        setEditForm({ title: "", description: "" });
+      } catch {
+        toast.error("Error updating todo");
+      } finally {
+        setUpdatingTodoId(null);
       }
     });
   };
@@ -164,8 +211,8 @@ export function TodosClient({ initialTodos }: TodosClientProps) {
                     rows={3}
                   />
                 </div>
-                <Button type="submit" disabled={isPending || !newTodo.title.trim()}>
-                  {isPending ? "Adding..." : "Add Todo"}
+                <Button type="submit" disabled={isCreating || !newTodo.title.trim()}>
+                  {isCreating ? "Adding..." : "Add Todo"}
                 </Button>
               </form>
             </CardContent>
@@ -180,48 +227,120 @@ export function TodosClient({ initialTodos }: TodosClientProps) {
                 </CardContent>
               </Card>
             ) : (
-              todos.map((todo) => (
-                <Card key={todo._id} className={todo.completed ? "opacity-70" : ""}>
-                  <CardContent className="px-6">
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        checked={todo.completed}
-                        onCheckedChange={() => toggleTodo(todo._id, todo.completed)}
-                        className="mt-1 mr-2 cursor-pointer"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <h3 className={`font-semibold leading-tight ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
-                            {todo.title}
-                          </h3>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteTodo(todo._id)}
-                            className="h-6 w-6 p-0 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 shrink-0"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                        {todo.description && (
-                          <p className={`text-sm mb-2 ${todo.completed ? "line-through text-muted-foreground" : "text-muted-foreground"}`}>
-                            {todo.description}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground/80">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            <span>Created {new Date(todo.createdAt).toLocaleDateString()}</span>
+              todos.map((todo) => {
+                const isEditing = editingTodoId === todo._id;
+                const isUpdatingThis = updatingTodoId === todo._id;
+                const isDeletingThis = deletingTodoId === todo._id;
+                
+                return (
+                  <Card key={todo._id} className={todo.completed ? "opacity-70" : ""}>
+                    <CardContent className="px-6">
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          checked={todo.completed}
+                          onCheckedChange={() => toggleTodo(todo._id, todo.completed)}
+                          className="mt-1 mr-2 cursor-pointer"
+                          disabled={isUpdatingThis || isDeletingThis || isEditing}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            {isEditing ? (
+                              <div className="flex-1 space-y-2">
+                                <Input
+                                  value={editForm.title}
+                                  onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                                  placeholder="Enter todo title..."
+                                  className="h-8"
+                                  disabled={isUpdatingThis}
+                                />
+                                <Textarea
+                                  value={editForm.description}
+                                  onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                                  placeholder="Enter todo description..."
+                                  rows={2}
+                                  className="resize-none"
+                                  disabled={isUpdatingThis}
+                                />
+                              </div>
+                            ) : (
+                              <h3 className={`font-semibold leading-tight ${todo.completed ? "line-through text-muted-foreground" : ""}`}>
+                                {todo.title}
+                              </h3>
+                            )}
+                            <div className="flex items-center gap-1 shrink-0">
+                              {isEditing ? (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => saveEditTodo(todo._id)}
+                                    className="h-6 w-6 p-0 text-muted-foreground/60 hover:text-green-600 hover:bg-green-50"
+                                    disabled={isUpdatingThis}
+                                  >
+                                    {isUpdatingThis ? (
+                                      <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
+                                    ) : (
+                                      <Check className="h-3.5 w-3.5" />
+                                    )}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={cancelEditingTodo}
+                                    className="h-6 w-6 p-0 text-muted-foreground/60 hover:text-red-600 hover:bg-red-50"
+                                    disabled={isUpdatingThis}
+                                  >
+                                    <X className="h-3.5 w-3.5" />
+                                  </Button>
+                                </>
+                              ) : (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => startEditingTodo(todo)}
+                                    className="h-6 w-6 p-0 text-muted-foreground/60 hover:text-blue-600 hover:bg-blue-50"
+                                    disabled={isUpdatingThis || isDeletingThis}
+                                  >
+                                    <Edit3 className="h-3.5 w-3.5" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDeleteTodo(todo._id)}
+                                    className="h-6 w-6 p-0 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10"
+                                    disabled={isUpdatingThis || isDeletingThis}
+                                  >
+                                    {isDeletingThis ? (
+                                      <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
+                                    ) : (
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    )}
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
-                          {todo.updatedAt !== todo.createdAt && (
-                            <span>• Updated {new Date(todo.updatedAt).toLocaleDateString()}</span>
+                          {!isEditing && todo.description && (
+                            <p className={`text-sm mb-2 ${todo.completed ? "line-through text-muted-foreground" : "text-muted-foreground"}`}>
+                              {todo.description}
+                            </p>
                           )}
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground/80">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              <span>Created {new Date(todo.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            {todo.updatedAt !== todo.createdAt && (
+                              <span>• Updated {new Date(todo.updatedAt).toLocaleDateString()}</span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
+                    </CardContent>
+                  </Card>
+                );
+              })
             )}
           </div>
         </div>
