@@ -6,7 +6,9 @@ if (!process.env.MONGODB_URI) {
 }
 
 const uri = process.env.MONGODB_URI;
-const options = {};
+const options = {
+  appName: "devrel.better-auth.demo",
+};
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;

@@ -127,5 +127,5 @@ The app uses Better Auth's automatic schema creation for users and sessions, plu
 
 - [Better Auth Documentation](https://better-auth.com)
 - [Next.js Documentation](https://nextjs.org/docs)
-- [MongoDB Documentation](https://docs.mongodb.com)
+- [MongoDB Documentation](https://docs.mongodb.com/?utm_campaign=devrel&utm_source=third-party-content&utm_medium=cta&utm_content=github-better-auth-mongodb&utm_term=jesse.hall)
 - [shadcn/ui Documentation](https://ui.shadcn.com)
