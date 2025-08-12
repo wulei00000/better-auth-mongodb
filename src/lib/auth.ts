@@ -1,25 +1,26 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import { MongoClient } from "mongodb";
+import { getAuthDatabaseSync } from "@/lib/mongodb";
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
+// Validate required environment variables
+if (!process.env.BETTER_AUTH_SECRET) {
+    throw new Error('Missing required environment variable: BETTER_AUTH_SECRET');
 }
 
-const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri);
-const database = client.db(process.env.MONGODB_DB || "better-auth");
+if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
+    throw new Error('Missing required GitHub OAuth environment variables: GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET');
+}
 
 export const auth = betterAuth({
-    database: mongodbAdapter(database),
+    database: mongodbAdapter(getAuthDatabaseSync()),
     emailAndPassword: {
         enabled: true, 
     },
     socialProviders: {
         github: {
-            clientId: process.env.GITHUB_CLIENT_ID as string,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+            clientId: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
         },
     },
-    secret: process.env.BETTER_AUTH_SECRET || "fallback-secret-for-development",
+    secret: process.env.BETTER_AUTH_SECRET,
 });

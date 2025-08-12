@@ -7,7 +7,7 @@ A modern authentication template built with Next.js, Better Auth, and MongoDB. F
 - 🔐 **Authentication**: Complete auth system with Better Auth
   - Email/password registration and login
   - GitHub OAuth support (configurable)
-  - Session management
+  - Session management with middleware protection
 - 🍃 **MongoDB Integration**: Full MongoDB adapter for Better Auth
   - User and session storage
   - Todo CRUD operations
@@ -38,17 +38,18 @@ A modern authentication template built with Next.js, Better Auth, and MongoDB. F
 
 ### Environment Variables
 
-Create a `.env.local` file in the root directory:
+Create a `.env.local` file in the root directory (see `.env.example` for reference):
 
 ```bash
-# MongoDB connection
+# MongoDB Configuration
 MONGODB_URI=mongodb://localhost:27017
 MONGODB_DB=better-auth
 
-# Better Auth
-BETTER_AUTH_SECRET=your-secret-key-here
+# Better Auth Configuration
+NEXT_PUBLIC_AUTH_URL=http://localhost:3000
+BETTER_AUTH_SECRET=your-secure-secret-key-here-minimum-32-characters
 
-# GitHub OAuth (optional)
+# GitHub OAuth (required for social login)
 GITHUB_CLIENT_ID=your-github-client-id
 GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
@@ -73,33 +74,40 @@ npm run dev
 src/
 ├── app/                    # Next.js App Router
 │   ├── api/auth/          # Better Auth API routes
-│   ├── api/todos/         # Todo CRUD API routes
-│   ├── auth/              # Authentication pages
-│   ├── dashboard/         # Protected dashboard with todos
+│   ├── auth/              # Authentication pages (login/signup)
+│   ├── todos/             # Todo management page
 │   └── page.tsx           # Landing page
 ├── components/            # React components
 │   ├── auth/              # Authentication components
 │   └── ui/                # shadcn/ui components
-└── lib/
-    ├── auth.ts            # Better Auth configuration
-    ├── auth-client.ts     # Client-side auth hooks
-    └── types.ts           # TypeScript definitions
+├── hooks/                 # Custom React hooks
+├── lib/                   # Core utilities and configuration
+│   ├── auth.ts           # Better Auth configuration
+│   ├── auth-client.ts    # Client-side auth hooks
+│   ├── auth-server.ts    # Server-side auth utilities
+│   ├── actions.ts        # Server actions with auth checks
+│   ├── mongodb.ts        # MongoDB client setup
+│   ├── env.ts            # Environment variable validation
+│   └── types.ts          # TypeScript definitions
+└── middleware.ts          # Route protection middleware
 ```
 
 ## Authentication Flow
 
-1. **Landing Page**: Welcome screen with auth status
+1. **Landing Page**: Welcome screen that redirects authenticated users to todos
 2. **Registration/Login**: Forms with validation and error handling
-3. **Dashboard**: Protected route with user profile and todo management
-4. **Session Management**: Automatic session handling with Better Auth
+3. **Todo Dashboard**: Protected route at `/todos` with user profile and todo management
+4. **Session Management**: Automatic session handling with Better Auth and middleware protection
 
 ## API Routes
 
 - `POST /api/auth/*` - Better Auth endpoints (handled automatically)
-- `GET /api/todos` - Fetch user's todos
-- `POST /api/todos` - Create new todo
-- `PUT /api/todos/[id]` - Update todo
-- `DELETE /api/todos/[id]` - Delete todo
+
+Todo operations are handled via server actions in `src/lib/actions.ts` instead of API routes:
+- `getTodos()` - Fetch user's todos
+- `createTodo()` - Create new todo  
+- `updateTodo()` - Update todo
+- `deleteTodo()` - Delete todo
 
 ## MongoDB Schema
 

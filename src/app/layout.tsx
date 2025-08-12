@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import "@/lib/env"; // Validate environment variables on startup
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Better Auth MongoDB Template",
+  title: "Better Auth & MongoDB Demo",
   description: "A Next.js template with Better Auth and MongoDB",
 };
 

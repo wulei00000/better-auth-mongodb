@@ -1,4 +1,5 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
+import type { Todo } from "./types";
 
 if (!process.env.MONGODB_URI) {
   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
@@ -36,4 +37,39 @@ export default clientPromise;
 export const getDatabase = async (dbName?: string) => {
   const client = await clientPromise;
   return client.db(dbName);
+};
+
+// Get the main auth database
+export const getAuthDatabase = async () => {
+  const client = await clientPromise;
+  return client.db(process.env.MONGODB_DB || "better-auth");
+};
+
+// Get the todos collection with proper typing
+export const getTodosCollection = async () => {
+  const database = await getAuthDatabase();
+  return database.collection<Omit<Todo, "_id"> & { _id?: ObjectId }>("todos");
+};
+
+// Get synchronous database instance for better-auth adapter
+// This uses the same singleton client but provides sync access
+export const getAuthDatabaseSync = () => {
+  // Use the same client instance but access it synchronously
+  // This works because better-auth will handle the connection internally
+  if (process.env.NODE_ENV === "development") {
+    const globalWithMongo = global as typeof globalThis & {
+      _mongoClient?: MongoClient;
+    };
+    
+    if (!globalWithMongo._mongoClient) {
+      globalWithMongo._mongoClient = new MongoClient(uri, options);
+    }
+    return globalWithMongo._mongoClient.db(process.env.MONGODB_DB || "better-auth");
+  } else {
+    // In production, create client if not exists (singleton pattern)
+    if (!client) {
+      client = new MongoClient(uri, options);
+    }
+    return client.db(process.env.MONGODB_DB || "better-auth");
+  }
 };

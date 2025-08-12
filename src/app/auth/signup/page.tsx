@@ -1,12 +1,20 @@
 import Link from "next/link";
 import { SignupForm } from "@/components/auth/signup-form";
+import { getOptionalServerSession } from "@/lib/auth-server";
+import { redirect } from "next/navigation";
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  // If user is already authenticated, redirect to todos
+  const session = await getOptionalServerSession();
+  if (session) {
+    redirect("/todos");
+  }
+
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+    <div className="flex min-h-screen items-center justify-center p-8">
+      <div className="w-full max-w-sm space-y-6">
         <SignupForm />
-        <p className="px-8 text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
           <Link
             href="/auth/login"
@@ -15,7 +23,7 @@ export default function SignupPage() {
             Sign in
           </Link>
         </p>
-        <p className="px-8 text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-muted-foreground">
           <Link
             href="/"
             className="hover:text-brand underline underline-offset-4"
